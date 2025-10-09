@@ -325,16 +325,26 @@ def restart_program():
     """
     Полный перезапуск FPV.
     """
-    python = sys.executable
-    os.execl(python, python, *sys.argv)
-    try:
-        process = psutil.Process()
-        for handler in process.open_files():
-            os.close(handler.fd)
-        for handler in process.connections():
-            os.close(handler.fd)
-    except:
-        pass
+
+    if sys.platform == "win32":
+        try:
+            process = psutil.Process()
+            process.terminate()
+        except:
+            pass
+        finally:
+            os._exit(0)
+    else:
+        python = sys.executable
+        os.execl(python, python, *sys.argv)
+        try:
+            process = psutil.Process()
+            for handler in process.open_files():
+                os.close(handler.fd)
+            for handler in process.connections():
+                os.close(handler.fd)
+        except:
+            pass
 
 
 def shut_down():
