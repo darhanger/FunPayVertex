@@ -1,5 +1,8 @@
-from pip._internal.cli.main import main
-
+import os
+import sys
+import subprocess
+import venv
+from pathlib import Path
 
 common_packages = [
     "psutil>=5.9.4",
@@ -12,11 +15,28 @@ common_packages = [
     "requests_toolbelt==0.10.1"
 ]
 
+venv_dir = Path(__file__).parent / "venv"
 
-def install_packages(packages_list: list[str]):
-    for pkg in packages_list:
-        main(["install", "-U", pkg])
+def create_venv():
+    if not venv_dir.exists():
+        print("[+] Создаю виртуальное окружение...")
+        venv.create(venv_dir, with_pip=True)
+    else:
+        print("[=] Виртуальное окружение уже существует.")
 
+def get_pip_path():
+    if os.name == "nt":
+        return venv_dir / "Scripts" / "pip.exe"
+    else:
+        return venv_dir / "bin" / "pip"
 
-if __name__ == '__main__':
+def install_packages(packages):
+    pip_path = str(get_pip_path())
+    for pkg in packages:
+        print(f"[+] Устанавливаю {pkg}...")
+        subprocess.check_call([pip_path, "install", "-U", pkg])
+
+if __name__ == "__main__":
+    create_venv()
     install_packages(common_packages)
+    print("\n✅ Все пакеты установлены в venv:", venv_dir)
