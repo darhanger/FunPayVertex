@@ -12,7 +12,8 @@ common_packages = [
     "pytelegrambotapi==4.8.0",
     "pillow>=9.3.0",
     "aiohttp==3.8.3",
-    "requests_toolbelt==0.10.1"
+    "requests_toolbelt==0.10.1",
+    "pystray>=0.19.5",
 ]
 
 venv_dir = Path(__file__).parent / "venv"
@@ -32,6 +33,11 @@ def get_pip_path():
 
 def install_packages(packages):
     pip_path = str(get_pip_path())
+    # Upgrade pip first to improve wheel resolution
+    try:
+        subprocess.check_call([pip_path, "install", "--upgrade", "pip"])
+    except Exception:
+        pass
     for pkg in packages:
         print(f"[+] Устанавливаю {pkg}...")
         subprocess.check_call([pip_path, "install", "-U", pkg])
